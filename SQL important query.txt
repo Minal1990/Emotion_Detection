@@ -1,0 +1,8 @@
+create table source1 (source varchar(100),destination varchar(100),distance int)
+
+insert into source1 values
+('Bangalore','Hyderabad',400),
+('Hyderabad','Bangalore',400),('Mumbai','Delhi',400),('Delhi','Mumbai',400),('Chennai','Pune',400),('Pune','Chennai',400)
+
+with cte as (select *,row_number() over() as id from source1)
+select t1.* from cte t1 join cte t2 on t1.source=t2.destination and t1.id<t2.id
