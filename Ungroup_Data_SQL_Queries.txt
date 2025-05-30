@@ -1,0 +1,73 @@
+-->> PROBLEM STATEMENT: Ungroup the given input data. Display the result as per expected output.
+
+-- Dataset:
+drop table travel_items;
+create table travel_items
+(
+id              int,
+item_name       varchar(50),
+total_count     int
+);
+insert into travel_items values
+(1, 'Water Bottle', 2),
+(2, 'Tent', 1),
+(3, 'Apple', 4);
+
+
+-->> EXPECTED OUTPUT:
+ID    ITEM_NAME
+1	  Water Bottle
+1	  Water Bottle
+2	  Tent
+3	  Apple
+3	  Apple
+3	  Apple
+3	  Apple
+
+
+-->> SOLUTION:
+
+-- PostgreSQL & MySQL
+with recursive cte as
+    (select id, item_name, total_count, 1 as level
+    from travel_items
+    union all
+    select cte.id, cte.item_name, cte.total_count - 1, level+1 as level
+    from cte
+    join travel_items t on t.item_name = cte.item_name and t.id = cte.id
+    where cte.total_count > 1
+    )
+select id, item_name
+from cte
+order by 1;
+
+
+-- MSSQL
+with cte as
+    (select id, item_name, total_count, 1 as level
+    from travel_items
+    union all
+    select cte.id, cte.item_name, cte.total_count - 1, level+1 as level
+    from cte
+    join travel_items t on t.item_name = cte.item_name and t.id = cte.id
+    where cte.total_count > 1
+    )
+select id, item_name
+from cte
+order by 1;
+
+
+-- Oracle
+with cte(i,id, item_name, total_count, LVL) as
+    (select 1,id, item_name, total_count, 1 as LVL
+    from travel_items
+    union all
+    select i+1,cte.id, cte.item_name, cte.total_count - 1, LVL+1 as LVL
+    from cte
+    join travel_items t on t.item_name = cte.item_name and t.id = cte.id
+    where cte.total_count > 1
+    )
+CYCLE i SET is_loop TO 'Y' DEFAULT 'N'
+select id, item_name
+from cte
+order by 1;
