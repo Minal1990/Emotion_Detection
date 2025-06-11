@@ -1,0 +1,11 @@
+create table Sales (year int,total_sales int)
+
+insert into Sales values (2020,50000),(2021,60000),(2022,75000),(2023,90000)
+
+select year,total_sales ,lag(total_sales) over(order by year) as prev_sales,
+case when lag(total_sales) over(order by year) is not null
+then round((total_sales-lag(total_sales) over(order by year))* 100/lag(total_sales) over(order by year),2)
+else null
+end as yoy_growth
+from Sales
+
